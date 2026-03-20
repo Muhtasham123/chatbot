@@ -1,6 +1,7 @@
 import streamlit as st
 from langchain_core.messages import HumanMessage
 from chatbot_backend import chatbot
+from chatbot_backend import fetch_threads
 import uuid
 
 #********************** UTILITY FUNCTIONS ************************
@@ -20,7 +21,7 @@ if 'chat_history' not in st.session_state:
     st.session_state['chat_history'] = []
 
 if 'thread_id_list' not in st.session_state:
-    st.session_state['thread_id_list'] = []
+    st.session_state['thread_id_list'] = fetch_threads()
 
 if 'thread_id' not in st.session_state:
     thread_id = generate_thread_id()
@@ -47,7 +48,9 @@ for thread_id in st.session_state['thread_id_list'][::-1]:
         st.session_state['chat_history'] = []
 
         CONFIG = {'configurable': {'thread_id': thread_id}}
-        session_conversations = chatbot.get_state(CONFIG).values['chat']
+        session_conversations = []
+        if chatbot.get_state(CONFIG).values:
+            session_conversations = chatbot.get_state(CONFIG).values['chat']
 
         for msg in session_conversations:
             role = ''
